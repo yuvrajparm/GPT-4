@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .chat-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #chat-box {
+      height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    #user-input {
+      width: calc(100% - 80px);
+      padding: 10px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .user-message {
+      text-align: right;
+      margin-bottom: 5px;
+    }
+
+    .bot-message {
+      text-align: left;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (message !== '') {
+        appendMessage('user', message);
+        userInput.value = '';
+        getChatbotResponse(message);
+      }
+    }
+
+    function appendMessage(sender, message) {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+      messageElement.innerText = message;
+      chatBox.appendChild(messageElement);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function getChatbotResponse(message) {
+      const response = await fetch('https://api.openai.com/v1/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer sk-proj-kfbQ87O37e9UF2mE3LvyT3BlbkFJ2CgpqHISy7JVuR0Mhv3t'
+        },
+        body: JSON.stringify({
+          model: 'text-davinci-002',
+          prompt: message,
+          max_tokens: 50
+        })
+      });
+
+      const responseData = await response.json();
+      const botResponse = responseData.choices[0].text.trim();
+      appendMessage('bot', botResponse);
+    }
+  </script>
+</body>
+</html>
